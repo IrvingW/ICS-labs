@@ -1,0 +1,69 @@
+# the y86 code for rsum
+# Student's name: Wang Tao
+# Student's ID: 515030910083
+
+.pos 0
+
+init:
+	irmovl Stack, %esp
+	irmovl Stack, %ebp
+	call Main
+	halt
+
+#example test
+.align 4
+ele1:
+	.long 0x00a
+	.long ele2
+ele2:
+	.long 0x0b0
+	.long ele3
+ele3:
+	.long 0xc00
+	.long 0
+
+#Main
+Main:
+	pushl %ebp
+	rrmovl %esp, %ebp
+	irmovl ele1, %ebx	#push argument
+	pushl %ebx
+	call rsum_list
+	rrmovl %ebp, %esp	#end
+	popl %ebp
+	ret
+
+#int rsum_list(list_ptr ls)
+rsum_list:
+	pushl %ebp
+	rrmovl %esp, %ebp
+	mrmovl 8(%ebp), %ebx	#get ls into ebx
+
+	pushl %edx		#caller save	
+	andl %ebx, %ebx		#if(!ls)
+	jne Else
+        irmovl $0, %eax
+
+Done:
+	popl %edx		#restore caller save
+	popl %ebp
+	ret
+
+			
+Else:            
+	mrmovl (%ebx), %edx 	#val = ls->val
+	mrmovl 4(%ebx), %ecx	#ls->next
+	pushl %ecx		#push argument
+	call rsum_list
+
+        addl %edx, %eax		#val+rest
+	irmovl $4, %esi		#argument
+	addl %esi, %esp
+	jmp Done
+	
+
+#Stack
+.pos 0x100
+Stack:
+
+

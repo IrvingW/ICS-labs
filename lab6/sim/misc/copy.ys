@@ -1,0 +1,74 @@
+# the y86 code for copy_block
+# Student's name: Wang Tao
+# Student's ID: 515030910083
+
+.pos 0
+init:
+	irmovl Stack, %esp
+	irmovl Stack, %ebp
+	call Main
+	halt
+
+.align 4
+# Source block
+src:
+	.long 0x00a
+	.long 0x0b0
+	.long 0xc00
+# Destination block
+dest:
+	.long 0x111
+	.long 0x222
+	.long 0x333
+
+#Main
+Main:  
+	pushl %ebp
+	rrmovl %esp, %ebp
+	irmovl $3, %eax		#len
+	pushl %eax
+	irmovl dest, %eax	#dest(4)
+	pushl %eax
+	irmovl src, %eax 	#src(4)
+	pushl %eax
+	call copy_block
+
+	rrmovl %ebp, %esp
+	popl %ebp
+	ret
+#int copu_block(int *src, int *dest, int len)
+copy_block:
+	pushl %ebp
+	rrmovl %esp, %ebp
+
+	mrmovl 8(%ebp), %ebx	#ebx src
+	mrmovl 12(%ebp), %ecx	#ecx dest
+	mrmovl 16(%ebp), %edi   #edi len
+
+	irmovl $0, %eax		#result = 0
+        subl %eax, %edi
+	jle Done
+
+Loop: 
+	irmovl $4, %esi		#esi 4
+	mrmovl (%ebx), %edx	#edx val val=*src
+        addl %esi, %ebx		#src++
+	rmmovl %edx, (%ecx) 	#*dest=val
+	addl %esi, %ecx		#dest++
+	xorl %edx, %eax		#result^=val
+	irmovl $1, %esi
+	subl %esi, %edi
+
+	irmovl $0, %esi
+	subl %esi, %edi
+	jg Loop
+
+Done: 
+	rrmovl %ebp, %esp
+	popl %ebp
+	ret
+	
+
+# here is where the stack begin
+.pos 0x100
+Stack:

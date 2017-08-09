@@ -1,0 +1,62 @@
+# y86 code for sum_list
+# Student's Name: Wang Tao 
+# Student's ID: 515030910083
+
+.pos 0
+# init
+init:
+	irmovl Stack, %esp
+	irmovl Stack, %ebp
+	call Main
+	halt
+	
+# sample test
+	.align 4
+ele1:
+	.long 0x00a
+	.long ele2
+ele2:
+	.long 0x0b0
+	.long ele3
+ele3:
+	.long 0xc00
+	.long 0
+
+#Main
+Main:
+	pushl %ebp
+	rrmovl %esp, %ebp
+	irmovl ele1, %eax
+	pushl %eax		#push the argument(ele1) into stack
+	call sum_list
+	
+	rrmovl %ebp, %esp	#end
+	popl %ebp
+	ret
+
+#int sum_list(list_ptr ls)
+sum_list:
+	pushl %ebp
+	rrmovl %esp, %ebp
+	irmovl $0, %eax		#int val = 0
+	mrmovl 8(%ebp), %ebx	#get argument
+
+        andl %ebx, %ebx
+	je Done
+Loop:	
+	mrmovl (%ebx),%ecx	#get ls->val 
+	addl %ecx, %eax		#val +=ls->val
+	mrmovl 4(%ebx), %ebx  	#ls = ls->next
+
+	andl %ebx, %ebx		#check
+	jne Loop
+
+Done:
+	rrmovl %ebp, %esp
+	popl %ebp
+	ret
+
+# here is where the stack begin
+.pos 0x100
+Stack:
+	
